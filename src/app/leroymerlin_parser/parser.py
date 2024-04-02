@@ -3,7 +3,6 @@ import random
 import requests
 from bs4 import BeautifulSoup
 from typing import List, Literal, Dict
-
 from app.model.models import CardProduct, Characteristic, Product
 
 
@@ -12,19 +11,15 @@ class BaseParser(abc.ABC):
     base_url = "https://leroymerlin.ru/"
     base_api_url = "https://api.leroymerlin.ru/"
     headers = {
-        'Host': 'api.leroymerlin.ru',
+        'Host': 'leroymerlin.ru',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
         'Accept-Language': 'ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3',
         'Accept-Encoding': 'gzip, deflate, br',
         'Connection': 'keep-alive',
-        'Cookie': 'uid_experiment=8431b60b53e41c2a3251286913c6deb5; pageExperiments=plp_recommendations:B+srp_category_facet:B; _regionID=34; iap.uid=bed2705a46ee418687b0fe8f417ad881; ___dmpkit___=ab4ba242-8804-427c-9c45-22d77fd8a979; _bge_ci=BA1.1.6583670419.1710801713; aplaut_distinct_id=JLTCsuJ2POyw; uxs_uid=b72d7570-e578-11ee-931c-6901b5025b71; kameleoonVisitorCode=l200u3djm8kovq4o; tmr_lvid=93b9eecc834dcca30e45523ad541e3cd; tmr_lvidTS=1710801713702; _ym_uid=1710801714352854536; _ym_d=1710801714; _gpVisits={"isFirstVisitDomain":true,"idContainer":"10002546"}; cookie_accepted=true; user-geolocation=0%2C0; tmr_detect=1%7C1711999452226; GACookieStorage=undefined; X-API-Experiments-sub=B; qrator_jsid=1711997406.977.xLTkuDpUN0wDIxff-e2olov1vosa469pb0otd5ujps3panapr; _ym_isad=1; _gp10002546={"hits":8,"vc":1,"ac":1,"a6":1}; _ym_visorc=b',
+        'Cookie': 'uid_experiment=8431b60b53e41c2a3251286913c6deb5; pageExperiments=plp_recommendations:B+srp_category_facet:B; _regionID=34; iap.uid=bed2705a46ee418687b0fe8f417ad881; ___dmpkit___=ab4ba242-8804-427c-9c45-22d77fd8a979; _bge_ci=BA1.1.6583670419.1710801713; aplaut_distinct_id=JLTCsuJ2POyw; uxs_uid=b72d7570-e578-11ee-931c-6901b5025b71; kameleoonVisitorCode=l200u3djm8kovq4o; tmr_lvid=93b9eecc834dcca30e45523ad541e3cd; tmr_lvidTS=1710801713702; _ym_uid=1710801714352854536; _ym_d=1710801714; _gpVisits={"isFirstVisitDomain":true,"idContainer":"10002546"}; cookie_accepted=true; user-geolocation=0%2C0; tmr_detect=1%7C1712052946846; _ym_isad=1; _gp10002546={"hits":14,"vc":1,"ac":1,"a6":1}; GACookieStorage=undefined; X-API-Experiments-sub=B; qrator_jsid=1712054713.438.Sfy8ZqVY7ZMjaCPk-hlejvtdqr65fpgu4ruhj6sehvo20u232; _ym_visorc=b; qrator_jsr=1712054713.438.Sfy8ZqVY7ZMjaCPk-92vvb0c3teo5n3q72vo68ppronlm449l-00',
         'Upgrade-Insecure-Requests': '1',
-        'Sec-Fetch-Dest': 'document',
-        'Sec-Fetch-Mode': 'navigate',
-        'Sec-Fetch-User': '?1',
         'x-api-key': 'nkGKLkscp80GVAQVY8YvajPjzaFTmIS8',
-        'x-request-id': '7ab6ae82049d4f980540e87971faf0cf'
     }
     
 
@@ -112,15 +107,15 @@ class BaseParser(abc.ABC):
         vendor_code = self._get_vendor_code(product_url)
         raw_product_info = self._get_product_main_info_from_api(vendor_code)
 
-        return Product(
-            url=product_url,
-            vendor_code=vendor_code,
-            name=self._get_name(raw_product_info),
-            price=self._get_price(raw_product_info),
-            rating=random.randrange(1, 5),
-            description=self._get_description(raw_product_info),
-            сharacteristics=self._get_сharacteristics(vendor_code),
-            photos=self._get_photos(vendor_code)
+        return (
+            product_url,
+            vendor_code,
+            self._get_name(raw_product_info),
+            self._get_price(raw_product_info),
+            random.randrange(1, 5),
+            self._get_description(raw_product_info),
+            self._get_сharacteristics(vendor_code),
+            self._get_photos(vendor_code)
         )
             
 

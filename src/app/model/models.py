@@ -16,11 +16,12 @@ class Product(BaseModel):
     url: str
     vendor_code: int
     name: str
-    price: int
+    price: float
     rating: int
     description: str | None
     сharacteristics: List[Characteristic]
     photos: List[str]
+    category: str
 
 
 class Products(BaseModel):
