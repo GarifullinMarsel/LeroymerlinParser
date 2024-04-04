@@ -5,6 +5,7 @@ from typing import Dict, List, Union
 
 class CardProduct(BaseModel):
     url: str
+    vendor_code: int
 
 
 class Characteristic(BaseModel):

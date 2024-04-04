@@ -17,7 +17,7 @@ class BaseParser(abc.ABC):
         'Accept-Language': 'ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3',
         'Accept-Encoding': 'gzip, deflate, br',
         'Connection': 'keep-alive',
-        'Cookie': 'uid_experiment=8431b60b53e41c2a3251286913c6deb5; pageExperiments=plp_recommendations:B+srp_category_facet:B; _regionID=34; iap.uid=bed2705a46ee418687b0fe8f417ad881; ___dmpkit___=ab4ba242-8804-427c-9c45-22d77fd8a979; _bge_ci=BA1.1.6583670419.1710801713; aplaut_distinct_id=JLTCsuJ2POyw; uxs_uid=b72d7570-e578-11ee-931c-6901b5025b71; kameleoonVisitorCode=l200u3djm8kovq4o; tmr_lvid=93b9eecc834dcca30e45523ad541e3cd; tmr_lvidTS=1710801713702; _ym_uid=1710801714352854536; _ym_d=1710801714; _gpVisits={"isFirstVisitDomain":true,"idContainer":"10002546"}; cookie_accepted=true; user-geolocation=0%2C0; tmr_detect=1%7C1712052946846; _ym_isad=1; _gp10002546={"hits":14,"vc":1,"ac":1,"a6":1}; GACookieStorage=undefined; X-API-Experiments-sub=B; qrator_jsid=1712054713.438.Sfy8ZqVY7ZMjaCPk-hlejvtdqr65fpgu4ruhj6sehvo20u232; _ym_visorc=b; qrator_jsr=1712054713.438.Sfy8ZqVY7ZMjaCPk-92vvb0c3teo5n3q72vo68ppronlm449l-00',
+        'Cookie': 'uid_experiment=8431b60b53e41c2a3251286913c6deb5; pageExperiments=plp_recommendations:B+srp_category_facet:B; _regionID=34; iap.uid=bed2705a46ee418687b0fe8f417ad881; ___dmpkit___=ab4ba242-8804-427c-9c45-22d77fd8a979; _bge_ci=BA1.1.6583670419.1710801713; aplaut_distinct_id=JLTCsuJ2POyw; uxs_uid=b72d7570-e578-11ee-931c-6901b5025b71; kameleoonVisitorCode=l200u3djm8kovq4o; tmr_lvid=93b9eecc834dcca30e45523ad541e3cd; tmr_lvidTS=1710801713702; _ym_uid=1710801714352854536; _ym_d=1710801714; _gpVisits={"isFirstVisitDomain":true,"idContainer":"10002546"}; cookie_accepted=true; user-geolocation=0%2C0; GACookieStorage=undefined; X-API-Experiments-sub=B; _ym_isad=1; tmr_detect=1%7C1712258265233; qrator_jsr=1712258261.576.syZjt6dxyII1RafR-5s3n5asnenusf5okl7hthqhcg9dcal7p-00; qrator_jsid=1712258261.576.syZjt6dxyII1RafR-1plf7p9tc2k70j662mejud6pqcivr4fn; _ym_visorc=b',
         'Upgrade-Insecure-Requests': '1',
         'x-api-key': 'nkGKLkscp80GVAQVY8YvajPjzaFTmIS8',
     }
@@ -32,20 +32,16 @@ class BaseParser(abc.ABC):
             raise RuntimeError(f"все плохо, братик, статус: {response.status_code}")
 
         soup = BeautifulSoup(response.text, "lxml")
-        products = []
+        product_urls = []
+        codes = []
         for i in soup.find_all("a", class_="bex6mjh_plp b1f5t594_plp p5y548z_plp pblwt5z_plp nf842wf_plp"):
-            product_url = self.base_url+i.get("href")
-            products.append(CardProduct(url=product_url))
-        return products
+            product_urls.append(self.base_url+i.get("href"))
 
-    def _get_vendor_code(self, url: str) -> int:
-        page = requests.get(url, headers=self.headers).text
-        soup_page = BeautifulSoup(page, "lxml")
-        code = soup_page.find("span", class_="t12nw7s2_pdp")
-        if code is None:
-            raise RuntimeError("не удается получичть артикул")
-        return int(code.text[2:])
+        for i in soup.find_all("span", class_="t3y6ha_plp sn92g85_plp p16wqyak_plp"):
+            codes.append(int(i.text[5:]))
 
+        return [CardProduct(url=i[0], vendor_code=i[1]) for i in zip(product_urls, codes)]
+   
     @staticmethod
     def _get_name(raw_product_info: Dict) -> str:
         try:
@@ -103,10 +99,8 @@ class BaseParser(abc.ABC):
             raise RuntimeError("ошибка получения информации о товаре из api")
         return raw_product_info.json()
 
-    def get_product_information(self, product_url) -> Product:
-        vendor_code = self._get_vendor_code(product_url)
+    def get_product_information(self, product_url: str, vendor_code: int) -> tuple:
         raw_product_info = self._get_product_main_info_from_api(vendor_code)
-
         return (
             product_url,
             vendor_code,
