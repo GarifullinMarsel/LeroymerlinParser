@@ -21,8 +21,8 @@ for i in range(1, 2):
                 category = "sad"
                 )
             )
-    except Exception as e:
-        print(e)
+    except Exception:
+        ...
 
 with open("sad.json", "w", encoding="utf-8") as file:
     file.write(Products(products=arr).model_dump_json())
